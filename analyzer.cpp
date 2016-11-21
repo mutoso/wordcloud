@@ -6,12 +6,15 @@
 #include <vector>
 #include <strings.h>
 #include <map>
+#include <fstream>
 
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 using namespace std;
 
