@@ -5,6 +5,7 @@
 #include <iterator>
 #include <vector>
 #include <strings.h>
+#include <map>
 
 #include <unistd.h>
 #include <sys/socket.h>
@@ -49,18 +50,15 @@ int main(int argc, char* argv[])
          webServer->h_length);
     serv_addr.sin_port = htons(80);
 
-	if (connect(webSocket, (struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
+	if (connect(webSocket, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) 
     {
         cerr << "Error: Can not connect to " << hostname << endl;
 		return 1;
 	}
 
-
-
 	// send HTTP GET
 	string getCommand = "GET " + path + " HTTP/1.1\r\n" +
                         "Host: " + hostname + "\r\n\r\n";
-	cerr << getCommand << endl;
 	int n = write(webSocket, getCommand.c_str(), getCommand.length());
 	if (n < 0) 
     {
@@ -75,5 +73,39 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-	cout << buffer << endl;
+    string output(buffer);
+
+    // strip out whitespace
+    replace(output.begin(), output.end(), '\t', ' ');
+    replace(output.begin(), output.end(), '\r', ' ');
+    replace(output.begin(), output.end(), '\n', ' ');
+
+    // strip out punctuation
+    replace(output.begin(), output.end(), '/', ' ');
+    replace(output.begin(), output.end(), '>', ' ');
+    replace(output.begin(), output.end(), '<', ' ');
+    replace(output.begin(), output.end(), '.', ' ');
+    replace(output.begin(), output.end(), ',', ' ');
+    replace(output.begin(), output.end(), ';', ' ');
+    replace(output.begin(), output.end(), ':', ' ');
+    replace(output.begin(), output.end(), '"', ' ');
+    replace(output.begin(), output.end(), '\'', ' ');
+
+    // count occurences
+    map<string,int> occurences;
+    istringstream stream(output);
+    string token;  
+
+    while (getline(stream, token, ' '))
+    {
+        if (token.length() != 0)
+        {
+            occurences[token]++;
+        }
+    }
+
+    for (const auto &occurence : occurences)
+    {
+        std::cout << occurence.first << "\t" << occurence.second << endl;
+    }
 }
