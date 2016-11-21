@@ -104,8 +104,13 @@ int main(int argc, char* argv[])
         }
     }
 
+    // make FIFO
+    mknod("/tmp/wordcloudfifo", S_IFIFO|0666, 0);
+    ofstream fifo;
+    fifo.open("/tmp/wordcloudfifo");
+
     for (const auto &occurence : occurences)
     {
-        std::cout << occurence.first << "\t" << occurence.second << endl;
+        fifo << occurence.first << "\t" << occurence.second << endl;
     }
 }
